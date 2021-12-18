@@ -1,16 +1,23 @@
 const { Scale, Chord, Interval, Note } = require("@tonaljs/tonal");
-const DATA = require('./data.js')
+const DATA = require('./data.js');
 const {WebMidi} = require("webmidi");
 const _ = require('lodash');
 
 
 // INIT
 
-let count = 0
-let modulationChance = 0
-let invertChanceCheck = 3
-let root = 'C3'
-let time = 800
+let count = 0;
+let modulationChance = 0;
+let invertChanceCheck = 3;
+let root = 'C6';
+let time = 400;
+let invertFailsafeNotActiveCounter = 0;
+let invertFailsafeActiveCounter = 0;
+let invertFailsafe = {
+    check: 16,
+    active: false,
+    counter: 5
+};
 
 // MIDI init
 
@@ -21,7 +28,7 @@ WebMidi
 
 // Function triggered when WebMidi.js is ready
 function onEnabled() {
-    main(time)
+    main(time);
 }
 
 
@@ -36,11 +43,31 @@ function main(wait) {
 
     // get the new interval
     let interval = scale.intervals[current.NUMBER - 1];
+    let invertChance = _.random(invertChanceCheck);
 
-    //give chance to invert the interval
-    let invertChance = _.random(invertChanceCheck)
-    if (invertChance = invertChanceCheck) {
-        interval = Interval.invert(interval)
+    //check to invert interval
+    if (invertFailsafe.active == true) {
+        console.log('Failsafe active');
+        interval = '-' + interval;
+        console.log(interval);
+        invertFailsafeActiveCounter++;
+        console.log('failsafe counter', invertFailsafeActiveCounter);
+        if (invertFailsafeActiveCounter == invertFailsafe.counter) {
+            console.log('turned off failsafe');
+            invertFailsafe.active = false;
+            invertFailsafeActiveCounter = 0;
+        }
+    } else if (invertChance == invertChanceCheck) {
+        console.log('inverting interval regularly');
+        interval = Interval.invert(interval);
+        //invertFailsafeNotActiveCounter = 0;
+    } else {
+        invertFailsafeNotActiveCounter++
+        if (invertFailsafeNotActiveCounter == invertFailsafe.check) {
+            console.log('activating failsafe');
+            invertFailsafe.active = true;
+            console.log(invertFailsafe.active);
+        }
     }
 
     // transpose the interval with the root
@@ -48,9 +75,7 @@ function main(wait) {
 
     //simplify note to prevent crash when MIDI can't be read anymore
     let note = Note.simplify(transposedNote);
-    
-
-
+    //let simpleNote = Note.simplify(transposedNote);
     notes.push(note);
 
     //calculate chance for modulation
@@ -70,6 +95,19 @@ function main(wait) {
         //reset modulationChance
         modulationChance = 0;
     }
+
+    //lower notes if too high
+    const octaves = notes.flatMap(str => str.match(/\d+/))
+    console.log(octaves);
+
+    if (octaves[0] >= 7) {
+        // replace the string
+        console.log('lowering octave');
+        console.log(parseInt(octaves[0]) - 4);
+        let newRoot = notes[0].replace(/[0-9]/g, parseInt(octaves[0]) - 4);
+        root = newRoot;
+    }
+
 
     _play(notes)
 
