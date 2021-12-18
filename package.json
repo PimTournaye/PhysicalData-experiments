@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "@tonaljs/tonal": "^4.6.5",
+    "arrays-to-csv": "^2.0.1",
+    "chance": "^1.1.8",
+    "convert-array-to-csv": "^2.0.0",
+    "csv-generate": "^4.0.3"
+  }
+}
