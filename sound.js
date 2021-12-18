@@ -1,5 +1,4 @@
-const { Scale, Chord } = require("@tonaljs/tonal");
-const Chance = require('chance').Chance();
+const { Scale, Chord, Interval, Note } = require("@tonaljs/tonal");
 const DATA = require('./data.js')
 const {WebMidi} = require("webmidi");
 const _ = require('lodash');
@@ -9,8 +8,9 @@ const _ = require('lodash');
 
 let count = 0
 let modulationChance = 0
+let invertChanceCheck = 3
 let root = 'C3'
-
+let time = 800
 
 // MIDI init
 
@@ -21,13 +21,11 @@ WebMidi
 
 // Function triggered when WebMidi.js is ready
 function onEnabled() {
-
-    main(1200)
+    main(time)
 }
 
 
 function main(wait) {
-
 
     let notes = [];
     //current data point
@@ -36,8 +34,23 @@ function main(wait) {
     //select the 10-note scale
     let scale = Scale.get(`${root} messiaen's mode #7`);
 
-    //get the new note
-    let note = scale.notes[current.NUMBER - 1]
+    // get the new interval
+    let interval = scale.intervals[current.NUMBER - 1];
+
+    //give chance to invert the interval
+    let invertChance = _.random(invertChanceCheck)
+    if (invertChance = invertChanceCheck) {
+        interval = Interval.invert(interval)
+    }
+
+    // transpose the interval with the root
+    let transposedNote = Note.transpose(root, interval);
+
+    //simplify note to prevent crash when MIDI can't be read anymore
+    let note = Note.simplify(transposedNote);
+    
+
+
     notes.push(note);
 
     //calculate chance for modulation
@@ -77,13 +90,13 @@ function _play(notes) {
     const MIDI_OUT = WebMidi.getOutputByName("loopMIDI");
     let channel = MIDI_OUT.channels[1];
     console.log(notes);
-    channel.playNote(notes, {duration: 1000});
+    channel.playNote(notes, {duration: time - 50});
 }
 
 function chooseChord(options, note) {
     let chordType = _.sample(options);
     let chordNotes = Chord.getChord(chordType, note).notes;
-    console.log('chordtype', chordNotes);
+    //console.log('chordtype', chordNotes);
     return chordNotes;
 }
 
