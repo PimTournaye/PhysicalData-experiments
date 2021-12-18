@@ -9,8 +9,8 @@ const _ = require('lodash');
 let count = 0;
 let modulationChance = 0;
 let invertChanceCheck = 3;
-let root = 'C6';
-let time = 400;
+let root = 'C3';
+let time = 200;
 let invertFailsafeNotActiveCounter = 0;
 let invertFailsafeActiveCounter = 0;
 let invertFailsafe = {
@@ -34,6 +34,7 @@ function onEnabled() {
 
 function main(wait) {
 
+    wait = time;
     let notes = [];
     //current data point
     let current = DATA[count];
@@ -92,24 +93,32 @@ function main(wait) {
         let chordTones = chooseChord(chords, note);
         notes.push(...chordTones);
 
+        //add bass note
+        const octaves = notes.flatMap(str => str.match(/\d+/));
+        let bassNote = notes[0].replace(/[0-9]/g, parseInt(octaves[0]) - Math.floor(octaves[0] / 2));
+        //console.log(bassNote);
+        notes.push(bassNote)
+
+
         //reset modulationChance
         modulationChance = 0;
+
+        //hold chord for longer
+        wait += 600
     }
 
     //lower notes if too high
     const octaves = notes.flatMap(str => str.match(/\d+/))
-    console.log(octaves);
 
     if (octaves[0] >= 7) {
         // replace the string
         console.log('lowering octave');
-        console.log(parseInt(octaves[0]) - 4);
         let newRoot = notes[0].replace(/[0-9]/g, parseInt(octaves[0]) - 4);
         root = newRoot;
     }
 
 
-    _play(notes)
+    _play(notes, wait)
 
 
     count++
@@ -124,11 +133,11 @@ function main(wait) {
 }
 
 
-function _play(notes) {
+function _play(notes, duration) {
     const MIDI_OUT = WebMidi.getOutputByName("loopMIDI");
     let channel = MIDI_OUT.channels[1];
     console.log(notes);
-    channel.playNote(notes, {duration: time - 50});
+    channel.playNote(notes, {duration: duration - 50});
 }
 
 function chooseChord(options, note) {
