@@ -7,10 +7,13 @@ const _ = require('lodash');
 // INIT
 
 let count = 0;
+
 let modulationChance = 0;
 let invertChanceCheck = 3;
+
 let root = 'C3';
-let time = 200;
+let time = 500;
+
 let invertFailsafeNotActiveCounter = 0;
 let invertFailsafeActiveCounter = 0;
 let invertFailsafe = {
@@ -38,6 +41,7 @@ function main(wait) {
     let notes = [];
     //current data point
     let current = DATA[count];
+    console.log(current);
 
     //select the 10-note scale
     let scale = Scale.get(`${root} messiaen's mode #7`);
@@ -110,10 +114,10 @@ function main(wait) {
     //lower notes if too high
     const octaves = notes.flatMap(str => str.match(/\d+/))
 
-    if (octaves[0] >= 7) {
+    if (octaves[0] >= 6) {
         // replace the string
         console.log('lowering octave');
-        let newRoot = notes[0].replace(/[0-9]/g, parseInt(octaves[0]) - 4);
+        let newRoot = notes[0].replace(/[0-9]/g, parseInt(octaves[0]) - 3);
         root = newRoot;
     }
 
@@ -121,7 +125,7 @@ function main(wait) {
     _play(notes, wait)
 
 
-    count++
+
     if (count == 449) {
         console.log('Done');
     } else {
