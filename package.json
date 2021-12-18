@@ -4,6 +4,8 @@
     "arrays-to-csv": "^2.0.1",
     "chance": "^1.1.8",
     "convert-array-to-csv": "^2.0.0",
-    "csv-generate": "^4.0.3"
+    "csv-generate": "^4.0.3",
+    "lodash": "^4.17.21",
+    "webmidi": "^3.0.5"
   }
 }

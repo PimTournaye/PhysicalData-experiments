@@ -1,37 +1,37 @@
 const DATA = [
     {
       DATE: "16/08/2020",
-      PICK: 1,
+      PICK: '1',
       NUMBER: 8
     },
     {
       DATE: "17/08/2020",
-      PICK: 2,
+      PICK: '2',
       NUMBER: 8
     },
     {
       DATE: "18/08/2020",
-      PICK: 3,
+      PICK: '3',
       NUMBER: 3
     },
     {
       DATE: "19/08/2020",
-      PICK: 4,
+      PICK: '4',
       NUMBER: 9
     },
     {
       DATE: "20/08/2020",
-      PICK: 5,
+      PICK: '5',
       NUMBER: 5
     },
     {
       DATE: "21/08/2020",
-      PICK: 6,
+      PICK: '6',
       NUMBER: 1
     },
     {
       DATE: "22/08/2020",
-      PICK: 7,
+      PICK: '7',
       NUMBER: 2
     },
     {
